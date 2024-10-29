@@ -1,6 +1,16 @@
 dev/docker/mongo-dump
 dev/docker/mongo-storage
 
+#Sbt
+logs
+target
+.bsp
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+
 #Maven
 target/
 pom.xml.tag

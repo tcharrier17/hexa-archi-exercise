@@ -16,10 +16,11 @@ The aim is to be able to identify the breaking changes easily by testing the app
 
 ## Run the application
 
-In order to run the application, you need to install `java`, `mvn` and `podman` in your machine.
+In order to run the application, you need to install `scala`, `sbt` and `podman` in your machine.
 Please check the following documentation if it is not already the case:
-- https://www.java.com/en/download/help/download_options.html (for java)
-- https://maven.apache.org/install.html (for mvn)
+TODO
+- https://www.scala-lang.org/download/ (for scala)
+- https://www.scala-sbt.org/download/ (for sbt)
 - https://podman.io/docs/installation (for podman)
 
 Then, open a terminal at `./dev/docker` and launch the required docker containers using:
@@ -35,16 +36,19 @@ podman-compose -p hexa-archi-exercise down
 
 To compile the backend, run:
 ```shell
-mvn compile
+sbt compile
 ```
 
 To launch the tests, run:
 ```shell
-mvn test
+sbt test
 ```
 
-To launch the backend, run the [main](application/src/main/java/lunatech/application/Main.java)
+To launch the backend, run:
+```shell
+sbt run
+```
 
-By default, the application will be available in the port **8080**.
+By default, the application will be available in the port **9000**.
 
 Note that you can test the API using the postman collection located [there](dev/postman/hexa-archi-exercise.postman_collection.json).

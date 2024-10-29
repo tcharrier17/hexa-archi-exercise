@@ -1,28 +1,20 @@
-package lunatech.resources;
+package adapters.controllers
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import com.google.inject.{Inject, Singleton}
+import lunatech.entities.UserEntity
+import lunatech.resources.Role
+import lunatech.services.UsersServices
+import lunatech.services.authentification.AuthService
+import play.api.libs.json.Json
+import play.api.mvc._
 
-import java.net.URI;
 
-import io.vavr.control.Either;
-import jakarta.validation.ConstraintViolation;
-import jakarta.annotation.security.RolesAllowed;
-import lunatech.security.Role;
-import lunatech.entities.TodoEntity;
-import lunatech.entities.UserEntity;
-import lunatech.services.AuthService;
-import lunatech.services.UserService;
-import lunatech.services.UserService.UserFilters;
-import org.bson.types.ObjectId;
-import org.javatuples.Pair;
-import org.jboss.logging.Logger;
-import jakarta.inject.Inject;
-import jakarta.validation.Validator;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+//import lunatech.security.Role;
+//import lunatech.entities.TodoEntity;
+//import lunatech.entities.UserEntity;
+//import lunatech.services.AuthService;
+//import lunatech.services.UserService;
+//import lunatech.services.UserService.UserFilters;
 
 /**
  * CRUD for TodoEntity
@@ -30,9 +22,37 @@ import jakarta.ws.rs.core.Response;
  * NB: Regular users are allowed to get/modify/delete their own todos
  * NB: Admin users are allowed to get/modify/delete every todos
  */
+@Singleton
+class UsersController @Inject()(val controllerComponents: ControllerComponents, val usersServices: UsersServices, val authService: AuthService) extends BaseController {
+
+  val authError: Result = Results.Unauthorized.withHeaders("WWW-Authenticate" -> """Basic realm="Secured"""")
+
+  def getAll(user: Option[String] = None): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+    request.headers.get("Authorization") match {
+      case Some(authHeader) => authService.authenticate(authHeader) match {
+        case Some(userInfos) => userInfos.role match {
+          case Role.ADMIN => Ok.apply(Json.toJson(usersServices.getUsers(user))).as("application/json")
+          case Role.REGULAR => Ok.apply(Json.toJson(usersServices.getUsers(Some(userInfos.username)))).as("application/json")
+          case _ => authError
+        }
+        case _ => authError
+      }
+      case _ => authError
+    }
+  }
+
+  def getById(id: String): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+    ???
+  }
+
+  def createOne: Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+    ???
+  }
+}
+/*
 @Path("/api/todos")
 @Consumes(MediaType.APPLICATION_JSON)
-public class TodoResource {
+class TodoResource {
     private static final Logger logger = Logger.getLogger(TodoResource.class);
 
     @Inject Validator validator;
@@ -208,4 +228,4 @@ public class TodoResource {
                 .build();
     }
 }
-
+*/

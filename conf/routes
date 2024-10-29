@@ -1,0 +1,20 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
+# ~~~~
+
+# Auhtentification route
+# POST    /api/auth                   adapters.controllers.AuthController.connect()
+
+# CRUD for TodoEntity
+POST    /api/todos                  adapters.rest.controllers.TodosController.createOne()
+GET     /api/todos                  adapters.rest.controllers.TodosController.getAll(tags: Option[List[String]], user: Option[String])
+GET     /api/todos/:id              adapters.rest.controllers.TodosController.getById(id)
+PUT     /api/todos                  adapters.rest.controllers.TodosController.modifyOne()
+DELETE  /api/todos/:id              adapters.rest.controllers.TodosController.deleteOne(id)
+
+POST    /api/users                  adapters.rest.controllers.UsersController.createOne()
+GET     /api/users                  adapters.rest.controllers.UsersController.getAll()
+GET     /api/users/:id              adapters.rest.controllers.UsersController.getById(id)
+
+
