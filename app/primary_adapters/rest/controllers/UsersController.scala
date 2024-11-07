@@ -1,12 +1,13 @@
 package primary_adapters.rest.controllers
 
 import core.resources.Role
-import core.services.UsersServices
+import core.services.UsersService
 import com.google.inject.{Inject, Singleton}
-import play.api.libs.json.Json
+import core.domain.models.UserEntity
+import play.api.libs.json.{JsBoolean, JsObject, JsString, JsValue, Json}
 import play.api.mvc._
 import primary_adapters.rest.authentification.AuthService
-
+import primary_adapters.rest.mapper.UserJsonMapper._
 
 //import lunatech.security.Role;
 //import lunatech.entities.TodoEntity;
@@ -22,7 +23,7 @@ import primary_adapters.rest.authentification.AuthService
  * NB: Admin users are allowed to get/modify/delete every todos
  */
 @Singleton
-class UsersController @Inject()(val controllerComponents: ControllerComponents, val usersServices: UsersServices, val authService: AuthService) extends BaseController {
+class UsersController @Inject()(val controllerComponents: ControllerComponents, val usersService: UsersService, val authService: AuthService) extends BaseController {
 
   val authError: Result = Results.Unauthorized.withHeaders("WWW-Authenticate" -> """Basic realm="Secured"""")
 
@@ -30,8 +31,7 @@ class UsersController @Inject()(val controllerComponents: ControllerComponents, 
     request.headers.get("Authorization") match {
       case Some(authHeader) => authService.authenticate(authHeader) match {
         case Some(userInfos) => userInfos.role match {
-          case Role.ADMIN => Ok.apply(Json.toJson(usersServices.getUsers(user))).as("core/json")
-          case Role.REGULAR => Ok.apply(Json.toJson(usersServices.getUsers(Some(userInfos.username)))).as("core/json")
+          case Role.ADMIN => Ok.apply(toJsonList(usersService.getUsers(user))).as("core/json")
           case _ => authError
         }
         case _ => authError
@@ -41,11 +41,46 @@ class UsersController @Inject()(val controllerComponents: ControllerComponents, 
   }
 
   def getById(id: String): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
-    ???
+    val userInfos: UserEntity = userAuth(request.headers.get("Authorization").getOrElse(throw new Error("Unauthorized")))
+    userInfos.role match {
+      case Role.ADMIN => Ok.apply(toJson(usersService.getUserById(id))).as("application/json")
+      case _ => authError
+    }
   }
 
-  def createOne: Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
-    ???
+  def deleteOne(id: String): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+    val userInfos: UserEntity = userAuth(request.headers.get("Authorization").getOrElse(throw new Error("Unauthorized")))
+
+    if (usersService.deleteUser(id)) Ok("element supprimer") else Ok(new JsObject(Map("work" -> JsBoolean(false)))).as("application/json")
+  }
+
+  def createOne(): Action[JsValue] = Action(parse.json) { implicit request: Request[JsValue] =>
+    // TODO : add feature to add the name off the owner directly in
+    val body = request.body.as[JsObject] + ("id" -> JsString(""))
+    fromJson(body) match {
+      case Some(todo) =>
+        if (usersService.createUser(todo))
+          Ok (JsObject(body.fields ++ Seq("create" -> JsBoolean(true)))).as("application/json")
+        else
+          Ok (JsObject(body.fields ++ Seq("create" -> JsBoolean(false)))).as("application/json")
+      case None => BadRequest("Invalid object sent")
+    }
+  }
+
+  def modifyOne(): Action[JsValue] = Action(parse.json) { implicit request: Request[JsValue] =>
+    val body = request.body.as[JsObject]
+    fromJson(body) match {
+      case Some(user) =>
+        if (usersService.updateUser(user))
+          Ok (JsObject(body.fields ++ Seq("done" -> JsBoolean(true)))).as("application/json")
+        else
+          Ok (JsObject(body.fields ++ Seq("done" -> JsBoolean(false)))).as("application/json")
+      case None => BadRequest("Invalid object sent")
+    }
+  }
+
+  def userAuth(headerAuth: String): UserEntity = {
+    authService.authenticate(headerAuth).getOrElse(throw new Error("Connexion failed"))
   }
 }
 /*

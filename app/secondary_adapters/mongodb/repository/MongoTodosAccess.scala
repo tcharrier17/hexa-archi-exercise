@@ -1,7 +1,7 @@
 package secondary_adapters.mongodb.repository
 
 import core.domain.models.TodoEntity
-import core.ports.outcoming.TodosRepository
+import core.ports.TodosRepository
 import play.api.Configuration
 import secondary_adapters.mongodb.MongoService
 import secondary_adapters.mongodb.mapper.{TodoMapper, UserMapper}

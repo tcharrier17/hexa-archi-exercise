@@ -1,7 +1,7 @@
 package primary_adapters.rest.authentification
 
 import core.domain.models.UserEntity
-import core.ports.outcoming.UsersRepository
+import core.ports.UsersRepository
 
 import java.util.Base64
 import javax.inject.Inject

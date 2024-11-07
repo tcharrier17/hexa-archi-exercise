@@ -1,28 +1,41 @@
 import com.google.inject.Singleton
+import core.domain.models.UserEntity
+import core.ports.UsersRepository
+import core.resources.Role
 import play.api.Logging
+import play.api.inject._
 
 import javax.inject._
+import scala.concurrent.Future
 
 /**
  * This class is executed everytime that we launch the application. We use it to load fixtures.
  */
 @Singleton
-class Startup @Inject() extends Logging {
-//  val users = List(
-//    new UserEntity("Nicolas", "pwd", Role.ADMIN, List.empty),
-//    new UserEntity("Ewen", "pwd", Role.REGULAR, List.empty),
-//    new UserEntity("Sebastien", "pwd", Role.REGULAR, List.empty)
-//  )
+class Startup @Inject()(userRepository: UsersRepository, lifecycle: ApplicationLifecycle) extends Logging {
+  val users: Seq[UserEntity] = List(
+    new UserEntity("Nicolas", "pwd", Role.ADMIN, List.empty),
+    new UserEntity("Ewen", "pwd", Role.REGULAR, List.empty),
+    new UserEntity("Sebastien", "pwd", Role.REGULAR, List.empty)
+  )
 
-//  @Transactional
-//  def loadFixtures(@Observes evt: StartupEvent): Unit = {
-//    logger.info("Executing fixtures startup operation")
-//
-//    UserEntity.deleteAll()
-//    users.foreach(_.persist())
-//  }
+
+  private def loadFixtures(): Unit = {
+    logger.info("Executing fixtures startup operation")
+    println("Startup OK")
+    userRepository.deleteALl()
+    userRepository.createUsers(users)
+  }
+
+  loadFixtures()
+
+  // Ajoute un hook pour nettoyer à la fermeture
+  lifecycle.addStopHook { () =>
+    Future.successful(logger.info("Stopping application and cleaning up resources"))
+  }
 
 }
+
 /*
 @Singleton
 public class Startup {

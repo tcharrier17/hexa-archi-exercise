@@ -1,9 +1,8 @@
-package core.ports.incoming
+package core.ports
 
-import core.domain.models.{TodoEntity, UserEntity}
+import core.domain.models.TodoEntity
 
-trait UsersPort {
-  def getUsers(user: Option[String]): Seq[UserEntity]
+trait TodosRepository {
 
   def getTodos(tagsFilter: Option[List[String]], owner: Option[String]): Seq[TodoEntity]
 
@@ -14,4 +13,5 @@ trait UsersPort {
   def updateTodo(todoEntity: TodoEntity, username: String): Boolean
 
   def deleteTodo(id: String, username: String): Boolean
+
 }

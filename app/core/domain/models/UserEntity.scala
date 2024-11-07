@@ -1,26 +1,23 @@
 package core.domain.models
 
-import play.api.libs.json.{Json, OFormat, Writes}
-
 /**
-     * username:
-     * Username used for HTTP auth
-     * Warning: it should be unique in the whole collection
- *
-     * @example "Nicolas"
-     *
-     * password:
-     * Password used for HTTP auth
-     * @example "1234"
-     *
-     * role:
-     * Role of the user
-     * @example "admin"
-     *
-     * todos:
-     * Associated todos
-     * @example List.empty<TodoEntity>
-     */
+  * username:
+  * Username used for HTTP auth
+  * Warning: it should be unique in the whole collection
+  * @example "Nicolas"
+  *
+  * password:
+  * Password used for HTTP auth
+  * @example "1234"
+  *
+  * role:
+  * Role of the user
+  * @example "admin"
+  *
+  * todos:
+  * Associated todos
+  * @example List.empty<TodoEntity>
+  */
 
 case class UserEntity(username: String, password: String, role: String, todos: List[TodoEntity] = List.empty)
 
@@ -34,12 +31,4 @@ object UserEntity {
 
     // TODO : verifier dans la base si username n'existe pas
   }
-
-  implicit val userJson: Writes[UserEntity] = Json.writes[UserEntity]
-
-  implicit val jsonUser: OFormat[UserEntity] = Json.format[UserEntity]
-
 }
-
-//    Note: This empty constructor should not be deleted as it is required by the app
-//    public UserEntity() {}

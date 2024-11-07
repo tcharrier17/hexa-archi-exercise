@@ -6,6 +6,10 @@ import secondary_adapters.mongodb.models.UserDocument
 
 object UserMapper {
   def userMapper(userDocument: UserDocument): UserEntity = {
-    models.UserEntity(userDocument.username, userDocument.password, userDocument.role, userDocument.todos.map(todo =>  TodoMapper.todoMapper(todo)))
+    UserEntity(userDocument.username, userDocument.password, userDocument.role, userDocument.todos.map(todo =>  TodoMapper.todoMapper(todo)))
+  }
+
+  def userDocumentMapper(userEntity: UserEntity): UserDocument = {
+    UserDocument(userEntity.username, userEntity.password, userEntity.role, userEntity.todos.map(todo =>  TodoMapper.todoDocumentMapper(todo)))
   }
 }

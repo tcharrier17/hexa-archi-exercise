@@ -12,11 +12,11 @@ import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase}
 import play.api.Configuration
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 @Singleton
-class MongoService @Inject()(config: Configuration) {
+class MongoService @Inject()(config: Configuration) (ec: ExecutionContext) {
   // Récupération des variables de conf
   val mongoHost: String = config.get[String]("mongo.host")
   val mongoPort: String = config.get[String]("mongo.port")
@@ -91,7 +91,10 @@ class MongoService @Inject()(config: Configuration) {
     ).toFuture()
 
     removeTodoResult.isCompleted
+  }
 
+  def clearCollection(collectionName: String, codecRegistry: CodecRegistry): Boolean = {
+    getCollectionWithCodecRegistry(collectionName, codecRegistry).deleteMany(Filters.empty()).toFuture().isCompleted
   }
 
   def getCollectionWithCodecRegistry[A](collectionName: String, codecRegistry: CodecRegistry)(implicit ct: ClassTag[A]): MongoCollection[A] = {

@@ -1,14 +1,11 @@
-import core.ports.incoming.UsersPort
-import core.ports.outcoming.{TodosRepository, UsersRepository}
-import core.services.UsersServices
 import com.google.inject.AbstractModule
+import core.ports.{TodosRepository, UsersRepository}
 import play.api.{Configuration, Environment}
-import secondary_adapters.mongodb.repository.{MongoTodosAccess, MongoUserRepository}
+import secondary_adapters.mongodb.repository.{MongoTodosAccess, MongoUsersRepository}
 
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule {
   override def configure(): Unit = {
-    bind(classOf[UsersRepository]).to(classOf[MongoUserRepository])
+    bind(classOf[UsersRepository]).to(classOf[MongoUsersRepository])
     bind(classOf[TodosRepository]).to(classOf[MongoTodosAccess])
-    bind(classOf[UsersPort]).to(classOf[UsersServices])
   }
 }
