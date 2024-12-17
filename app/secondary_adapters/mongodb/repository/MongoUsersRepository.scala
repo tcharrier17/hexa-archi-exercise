@@ -7,6 +7,7 @@ import secondary_adapters.mongodb.mapper.UserMapper
 import secondary_adapters.mongodb.models.UserDocument
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
 
@@ -25,8 +26,13 @@ class MongoUsersRepository @Inject()(mongoService: MongoService) extends UsersRe
       .map(doc => UserMapper.userMapper(doc))
   }
 
-  override def verifyUser(username: String, password: String): Option[UserEntity] = {
+  override def createUser(userEntity: UserEntity): Boolean = {
+    mongoService.createInMongo[UserDocument]("users", UserMapper.userDocumentMapper(userEntity), UserDocument.codecRegistry)
+  }
 
+  override def getUserById(id: String): UserEntity = ???
+
+  override def getUserByUsername(username: String): Option[UserEntity] = {
     // TODO make the tags filter (add field tags to todos entities and make function to find many tags in mongo list)
     val searchFilters: List[(String, String)] = List(("username", username))
 
@@ -34,14 +40,6 @@ class MongoUsersRepository @Inject()(mongoService: MongoService) extends UsersRe
     Await.result(collection, 10.seconds)
       .map(doc => UserMapper.userMapper(doc)).headOption
   }
-
-  override def createUser(userEntity: UserEntity): Boolean = {
-    mongoService.createInMongo[UserDocument]("users", UserMapper.userDocumentMapper(userEntity), UserDocument.codecRegistry)
-  }
-
-  override def getUserById(id: String): UserEntity = ???
-
-  override def getUserByUsername(username: String): UserEntity = ???
 
   override def updateUser(userEntity: UserEntity): Boolean = ???
 

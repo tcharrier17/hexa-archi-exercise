@@ -13,7 +13,7 @@ class AuthService @Inject()(usersRepository: UsersRepository) {
     val Array(providedUsername, providedPassword) = decodedCredentials.split(":", 2)
 
     // Vérifier l'utilisateur (via la base de données par exemple)
-    val user: Option[UserEntity] = usersRepository.verifyUser(providedUsername, providedPassword)
+    val user = usersRepository.getUserByUsername(providedUsername)
 
     user match {
       case Some(value) => Some(value)

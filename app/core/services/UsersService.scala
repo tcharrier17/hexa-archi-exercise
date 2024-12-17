@@ -4,6 +4,7 @@ import core.domain.models.UserEntity
 import core.ports.UsersRepository
 
 import javax.inject.Inject
+import scala.concurrent.Future
 
 class UsersService @Inject()(usersRepository: UsersRepository) {
   def getUsers(user: Option[String]): Seq[UserEntity] = {
@@ -18,7 +19,7 @@ class UsersService @Inject()(usersRepository: UsersRepository) {
     usersRepository.getUserById(id)
   }
 
-  def getUserByUsername(username: String): UserEntity = {
+  def getUserByUsername(username: String): Option[UserEntity] = {
     usersRepository.getUserByUsername(username)
   }
 

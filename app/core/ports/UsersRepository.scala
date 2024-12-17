@@ -2,6 +2,8 @@ package core.ports
 
 import core.domain.models.UserEntity
 
+import scala.concurrent.Future
+
 trait UsersRepository {
   def createUser(userEntity: UserEntity): Boolean
 
@@ -13,13 +15,11 @@ trait UsersRepository {
 
   def getUserById(id: String): UserEntity
 
-  def getUserByUsername(username: String): UserEntity
+  def getUserByUsername(username: String): Option[UserEntity]
 
   def updateUser(userEntity: UserEntity): Boolean
 
   def deleteUser(id: String): Boolean
 
   def deleteALl(): Boolean
-
-  def verifyUser(username: String, password: String): Option[UserEntity]
 }

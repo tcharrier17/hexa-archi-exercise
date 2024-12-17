@@ -14,9 +14,9 @@ import scala.concurrent.Future
 @Singleton
 class Startup @Inject()(userRepository: UsersRepository, lifecycle: ApplicationLifecycle) extends Logging {
   val users: Seq[UserEntity] = List(
-    new UserEntity("Nicolas", "pwd", Role.ADMIN, List.empty),
-    new UserEntity("Ewen", "pwd", Role.REGULAR, List.empty),
-    new UserEntity("Sebastien", "pwd", Role.REGULAR, List.empty)
+    UserEntity("Nicolas", "pwd", Role.ADMIN),
+    UserEntity("Ewen", "pwd", Role.REGULAR),
+    UserEntity("Sebastien", "pwd", Role.REGULAR)
   )
 
 

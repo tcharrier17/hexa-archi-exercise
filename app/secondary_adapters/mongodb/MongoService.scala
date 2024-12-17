@@ -10,13 +10,14 @@ import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.result.UpdateResult
 import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase}
 import play.api.Configuration
+import secondary_adapters.mongodb.models.UserDocument
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 @Singleton
-class MongoService @Inject()(config: Configuration) (ec: ExecutionContext) {
+class MongoService @Inject()(config: Configuration) (implicit ec: ExecutionContext) {
   // Récupération des variables de conf
   val mongoHost: String = config.get[String]("mongo.host")
   val mongoPort: String = config.get[String]("mongo.port")
@@ -61,36 +62,35 @@ class MongoService @Inject()(config: Configuration) (ec: ExecutionContext) {
   }
 
   def addInMongoObject[A](collectionName: String, codecRegistry: CodecRegistry,
-                          objectInfos: (String, String), elementInfos: (String, Any))(implicit ct: ClassTag[A]): Boolean = {
+                          objectInfos: (String, String), elementInfos: (String, Any))(implicit ct: ClassTag[A]): Future[String] = {
 
     val addResult: Future[UpdateResult] = getCollectionWithCodecRegistry(collectionName, codecRegistry).updateOne(
       createFilter(List(objectInfos)),
       push(elementInfos._1, elementInfos._2)
     ).toFuture()
 
-    addResult.isCompleted
+    addResult.map(result => result.toString)
   }
 
   def updateInMongoObject[A](collectionName: String, codecRegistry: CodecRegistry, objectInfos: (String, String), elementInfos: (String, String),
-                             elementChanges: (String, Any))(implicit ct: ClassTag[A]): Boolean = {
+                             elementChanges: (String, Any))(implicit ct: ClassTag[A]): Future[String] = {
 
     val updateTodoResult: Future[UpdateResult] = getCollectionWithCodecRegistry(collectionName, codecRegistry).updateOne(
       createFilter(List(objectInfos, elementInfos)),
       set(elementChanges._1, elementChanges._2)
     ).toFuture()
 
-    updateTodoResult.isCompleted
-
+    updateTodoResult.map(result => result.toString)
   }
 
   def deleteInMongoObject[A](collectionName: String, codecRegistry: CodecRegistry, objectInfos: (String, String),
-                             elementInfos: (String, String, String))(implicit ct: ClassTag[A]): Boolean = {
+                             elementInfos: (String, String, String))(implicit ct: ClassTag[A]): Future[String] = {
     val removeTodoResult: Future[UpdateResult] = getCollectionWithCodecRegistry(collectionName, codecRegistry).updateOne(
       createFilter(List(objectInfos)),
       pull(elementInfos._1, createFilter(List((elementInfos._2, elementInfos._3))))
     ).toFuture()
 
-    removeTodoResult.isCompleted
+    removeTodoResult.map(result => result.)
   }
 
   def clearCollection(collectionName: String, codecRegistry: CodecRegistry): Boolean = {
